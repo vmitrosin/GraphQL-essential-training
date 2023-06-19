@@ -2,15 +2,15 @@ import {Widgets} from './dbConnectors';
 
 const resolvers = {
   getProduct: ({id}) => {
-    return new Promise((resolve) => {
-      Widgets.findById({_id: id}, (err, product) => {
-        if (err) return reject(err);
-        else resolve(product);
-      })
-    });
+    return Widgets.findById({_id: id}).exec();
   },
-  createProduct: ({input}) => {
-    const newWidget = new Widgets({
+
+  getAllProducts: () => {
+    return Widgets.find()
+  },
+
+  createProduct: async ({input}) => {
+    await  Widgets.create({
       name: input.name,
       description: input.description,
       price: input.price,
@@ -18,13 +18,23 @@ const resolvers = {
       inventory: input.inventory,
       stores: input.stores,
     });
-    newWidget.id = newWidget._id;
-    return new Promise((resolve, reject) => {
-      newWidget.save((err) => {
-        if(err) reject(err);
-        else resolve(newWidget);
-      });
+  },
+
+  updateProduct: async ({input}) => {
+    const filter = {_id: input.id};
+    await Widgets.updateOne(filter, {
+      name: input.name,
+      description: input.description,
+      price: input.price,
+      soldOut: input.soldOut,
+      inventory: input.inventory, 
+      stores: input.stores,
     });
+  },
+  
+  deleteProduct: async ({id}) => {
+    const filter = {_id: id};
+    await Widgets.findOneAndRemove(filter);
   }
 }
 
